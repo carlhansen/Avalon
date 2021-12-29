@@ -1,7 +1,6 @@
-import SHA256 from "crypto-js/sha256.js";
-// const SHA256 = data => crypto.createHash("sha256").update(data).digest("hex");
+const { SHA256 } = require("crypto-js");
 
-export default class Block {
+class Block {
     constructor(ts, txs, prevHash = "") {
         this.ts = ts;
         this.txs = txs;
