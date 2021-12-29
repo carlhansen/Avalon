@@ -1,10 +1,9 @@
-import SHA256 from "crypto-js/sha256.js";
-
-import Elliptic from 'elliptic';
+const { SHA256 } = require("crypto-js"),
+        Elliptic = require("elliptic");
 
 const ec = new Elliptic.ec('secp256k1');
 
-export default class Transaction {
+class Transaction {
     constructor(fromAdd, toAdd, amount, msg) {
         this.fromAdd = fromAdd;
         this.toAdd = toAdd;
@@ -13,17 +12,15 @@ export default class Transaction {
     };
 
     calculateHash() {
-        return SHA256(this.fromAdd + this.toAdd + this.amount + this.msg);
+        return SHA256(this.fromAdd + this.toAdd + this.amount + this.msg).toString();
     };
 
     signTx(signingKey) {
-        if(this.fromAdd === null) return true;
-
         if(signingKey.getPublic('hex') !== this.fromAdd) throw new Error("You cannot sign transactions to other wallets!");
 
-        this.hash = this.calculateHash();
+        const txHash = this.calculateHash();
 
-        const sign = signingKey.sign(this.hash, 'base64');
+        const sign = signingKey.sign(txHash, 'base64');
 
         this.signature = sign.toDER('hex');
 
@@ -33,12 +30,12 @@ export default class Transaction {
     isValid() {
         if(this.fromAdd === null) return true;
 
-        if(signingKey.getPublic("hex") !== this.fromAdd) throw new Error("You cannot sign transactions for other wallets!");
+        if(!this.signature || this.signature.length === 0) throw new Error("No signature in this transaction.")
 
         const publicKey = ec.keyFromPublic(this.fromAdd, 'hex');
-
-        console.log("Signatures: " + this.signature);
         
         return publicKey.verify(this.calculateHash(), this.signature);
     };
 };  
+
+module.exports = Transaction;

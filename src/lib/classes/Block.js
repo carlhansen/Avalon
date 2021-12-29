@@ -28,3 +28,5 @@ class Block {
         console.log("Block mined, nonce: " + this.nonce + ", hash: " + this.hash);
     };
 };
+
+module.exports = Block;
